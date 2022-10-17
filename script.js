@@ -1,3 +1,7 @@
+    let xcol = '';
+    let ycol = '';
+let mouse = { x: 0, y: 0 };
+const block = '';
 function OilPainting() {
 
     let canvas;
@@ -12,6 +16,9 @@ function OilPainting() {
     let endy = '';
     let x = '';
     let y = '';
+    
+
+    
     // let startPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
     // let prevPos = { x: window.innerWidth / 2, y: 0 };
     let startPos = { x: '' , y: ''  };
@@ -25,6 +32,10 @@ function OilPainting() {
     this.initialize = function () {
         canvas = document.getElementById("canvas");
         context = canvas.getContext('2d');
+        const block = document.querySelector(".block").getContext('2d');
+        // block = canvas.getContext('2d');
+        // const drawingCanvas = document.getElementById('canvas');
+        // let ctx = drawingCanvas.getContext('2d');
 
         width = document.getElementById("canvas").clientWidth;
         height = document.getElementById("canvas").clientHeight;
@@ -33,8 +44,15 @@ function OilPainting() {
         canvas.height = height;
     
         canvas.addEventListener('click', MouseDown, false);
-        // canvas.addEventListener('mousemove', MouseMove, false);
-        // canvas.addEventListener('dblclick', MouseDbl, false);
+        canvas.addEventListener('mousemove', MouseMove, false);
+        // canvas.addEventListener('mousemove', function (e) {
+        //     let x = e.pageX - e.target.offsetLeft;
+        //     let y = e.pageY - e.target.offsetTop;
+        //     console.log('====>', x, y);
+        //     context.lineTo(e.pageX, e.pageY);
+        //     context.stroke();
+        // }, false);
+        canvas.addEventListener('dblclick', MouseDbl, false);
         // animate(canvas, context);
     }
 
@@ -42,27 +60,28 @@ function OilPainting() {
 
     let MouseDown = function (e) {
         e.preventDefault();
+        // let ClientRect = this.getBoundingClientRect();
+        // mouse.x = e.clientX - ClientRect.left;
+        // mouse.y = e.clientY - ClientRect.top;
         // colour = '#' + Math.floor(Math.random() * 16777215).toString(16);
         x = e.pageX - e.target.offsetLeft;
         y = e.pageY - e.target.offsetTop;
+        
         
         if (startx == '' && starty == '') {
             startx = x;
             starty = y;
             context.beginPath();
             context.moveTo(startx, starty);
-            
 
-            // var animate = function (canvas, context) {
-            // context.lineTo(x, y);
-            //             console.log('==>',x, y)
-            //             context.stroke();
-            //         }
-            requestAnimationFrame(function () {
-                // animate(canvas, context);
-                context.lineTo(x, y);
-                context.stroke();
-            });
+            document.querySelector(".x").innerHTML = mouse.x;
+            block.lineWidth = 1;
+            block.lineTo(mouse.x, mouse.y);
+            block.strokeStyle = "red";
+            block.fillStyle = "red";
+            block.fill();
+            block.stroke();
+            
         }
         
         else if (startx != '' && starty != '' && endx == '' && endy == '') {
@@ -72,15 +91,13 @@ function OilPainting() {
             // console.log(startx, starty, endx, endy);
         // context.closePath();
 
-
-            const stroke = context.createLinearGradient(startx, starty, x, y);
+        const stroke = context.createLinearGradient(startx, starty, x, y);
             stroke.addColorStop(0, 'blue');
             stroke.addColorStop(1, 'red');
             context.strokeStyle = stroke;
-            context.lineWidth = 1;        
+            context.lineWidth = 1; 
         
-        
-            context.stroke();
+        context.stroke();
         context.fill();
 
         points.push([startx, starty, x, y]);
@@ -89,80 +106,80 @@ function OilPainting() {
         starty = '';
         endx = '';
         endy = '';
+        console.log('=-=-=->',points[0]);
+        console.log('-=-=-=>',points[1]);
+            // console.log('-=!!!!-=-=>', ...points[0], ...points[1]);
+            for (let i = 0; i < points.length; i++) {
+                for (let k = i; k < points.length; k++) {
+                    get_line_intersection(...points[i], ...points[k]);
+                    // Math.round()
+                    // console.log('!!!!!!!!!', Math.round(xcol), Math.round(ycol));
+                    context.beginPath();
+                    // context.moveTo(Math.round(xcol), Math.round(ycol));
+                    context.moveTo(xcol, ycol);
+                    context.arc(xcol, ycol, 4, 0, 2 * Math.PI);
+                    context.lineWidth = 1;
+                    context.lineTo(xcol, ycol);
+                    context.strokeStyle = "red";
+                    context.fillStyle = "red";
+                    context.fill();
+                    context.stroke();
+                }
+            }
+                
+            
+            
+        }
     }
     
-    
-    }
-    
-                        
-    
+
+
     let MouseMove = function (e) {
-        let x = e.pageX - e.target.offsetLeft;
-        let y = e.pageY - e.target.offsetTop;
-        console.log(x, y);
-                                            // let distance1 = (prevPos.x - startPos.x) +
-                                            //     (prevPos.y - startPos.y);
-                                            // console.log(distance1);
-
-        // let a = distance * 10 * (Math.pow(Math.random(), 2) - 0.5);
-
-        // let r = Math.random() - 0.5;
-
-        let size = (Math.random() * 15) / distance;
-
-        // dist.x = (prevPos.x - startPos.x) * Math.sin(0.5) + startPos.x;
-        // dist.y = (prevPos.y - startPos.y) * Math.cos(0.5) + startPos.y;
-        dist.x = prevPos.x ;
-        dist.y = prevPos.y;
-
-                                            startPos.x = prevPos.x;
-                                            startPos.y = prevPos.y;
-
-                                            prevPos.x = (e.layerX);
-                                            prevPos.y = (e.layerY);
-                                            // console.log(e.layerX, e.layerY)
-        // ------- Draw -------
-        let lWidth = (Math.random() + 20 / 10 - 0.5) * size + (1 - Math.random() + 30 / 20 - 0.5) * size;
-        // context.lineWidth = lWidth;
-        // context.strokeWidth = lWidth;
-        context.lineWidth = 1;
-        context.strokeWidth = 1;
-
-        // context.lineCap = 'round';
-        // context.lineJoin = 'round';
-
-        // context.beginPath();
-        // context.moveTo(startPos.x, startPos.y);
-        // context.quadraticCurveTo(dist.x, dist.y, prevPos.x, prevPos.y);
-
-        // context.fillStyle = colour;
-        // context.strokeStyle = colour;
-
-        // context.moveTo(startPos.x + a, startPos.y + a);
-        // context.lineTo(startPos.x + r + a, startPos.y + r + a);
-
-        // context.stroke();
-        // context.fill();
-
-        // context.closePath();
-
-        // context.beginPath();
-        // context.moveTo(20, 20);
-        // context.lineTo(20, 100);
-        // context.lineTo(70, 100);
-        // context.closePath();
-        // context.stroke();
-        // context.fillStyle = "red";
-        // context.fill();
+        // drawingCanvas = document.getElementById('canvas');
+        // ctx = drawingCanvas.getContext('2d');
+        if (startx !== '' && starty !== '') {
+            block.width = canvas.width;
+            block.height = canvas.height;
+            // let x = e.pageX - e.target.offsetLeft;
+            // let y = e.pageY - e.target.offsetTop;
+            mouse.x = e.pageX - e.target.offsetLeft;
+            mouse.y = e.pageY - e.target.offsetTop;
+            
+            // blocktext.clearRect(0, 0, innerWidth, innerHeight);
+            // block.beginPath();
+            // block.moveTo(startx, starty);
+            // block.strokeStyle = "red";
+            // block.lineWidth = 1; 
+            // block.lineTo(x, y);
+            // block.stroke();
+        }
     }
 
-    
 
     let MouseDbl = function (e) {
         e.preventDefault();
         context.clearRect(0, 0, width, height);
     }
 
+}
+
+function get_line_intersection(p0_x, p0_y, p1_x, p1_y, p2_x, p2_y, p3_x, p3_y)
+{
+    let s1_x, s1_y, s2_x, s2_y;
+    s1_x = p1_x - p0_x; s1_y = p1_y - p0_y;
+    s2_x = p3_x - p2_x; s2_y = p3_y - p2_y;
+
+    let s, t;
+    s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y);
+    t = (s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y);
+
+    if (s >= 0 && s <= 1 && t >= 0 && t <= 1) {
+        // Collision detected
+        xcol = Math.round(p0_x + (t * s1_x));
+        ycol = Math.round(p0_y + (t * s1_y));
+    }
+
+    return 0; // No collision
 }
 
 let app = new OilPainting();
