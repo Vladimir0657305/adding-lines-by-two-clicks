@@ -10,6 +10,8 @@ function OilPainting() {
     let starty = '';
     let endx = '';
     let endy = '';
+    let x = '';
+    let y = '';
     // let startPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
     // let prevPos = { x: window.innerWidth / 2, y: 0 };
     let startPos = { x: '' , y: ''  };
@@ -33,16 +35,16 @@ function OilPainting() {
         canvas.addEventListener('click', MouseDown, false);
         // canvas.addEventListener('mousemove', MouseMove, false);
         // canvas.addEventListener('dblclick', MouseDbl, false);
-        
+        // animate(canvas, context);
     }
+
+        
 
     let MouseDown = function (e) {
         e.preventDefault();
         // colour = '#' + Math.floor(Math.random() * 16777215).toString(16);
-        let x = e.pageX - e.target.offsetLeft;
-        let y = e.pageY - e.target.offsetTop;
-        // context.fillStyle = colour;
-        // context.strokeStyle = colour;
+        x = e.pageX - e.target.offsetLeft;
+        y = e.pageY - e.target.offsetTop;
         
         if (startx == '' && starty == '') {
             startx = x;
@@ -50,6 +52,17 @@ function OilPainting() {
             context.beginPath();
             context.moveTo(startx, starty);
             
+
+            // var animate = function (canvas, context) {
+            // context.lineTo(x, y);
+            //             console.log('==>',x, y)
+            //             context.stroke();
+            //         }
+            requestAnimationFrame(function () {
+                // animate(canvas, context);
+                context.lineTo(x, y);
+                context.stroke();
+            });
         }
         
         else if (startx != '' && starty != '' && endx == '' && endy == '') {
@@ -58,7 +71,16 @@ function OilPainting() {
             context.lineTo(endx, endy);
             // console.log(startx, starty, endx, endy);
         // context.closePath();
-        context.stroke();
+
+
+            const stroke = context.createLinearGradient(startx, starty, x, y);
+            stroke.addColorStop(0, 'blue');
+            stroke.addColorStop(1, 'red');
+            context.strokeStyle = stroke;
+            context.lineWidth = 1;        
+        
+        
+            context.stroke();
         context.fill();
 
         points.push([startx, starty, x, y]);
@@ -73,6 +95,7 @@ function OilPainting() {
     }
     
                         
+    
     let MouseMove = function (e) {
         let x = e.pageX - e.target.offsetLeft;
         let y = e.pageY - e.target.offsetTop;
