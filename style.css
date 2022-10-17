@@ -1,18 +1,4 @@
-.container {
-    height: 100vh;
-    width: 100vw;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    /* border: 1px solid red; */
-}
-
-.block {
-    height: 80%;
-    width: 90%;
-    border: 1px solid red;
-}
+@import url(https://fonts.googleapis.com/css?family=Give+You+Glory);
 
 .coords {
     width: 100px;
@@ -40,14 +26,27 @@ body {
     height: 100%;
     margin: 0px;
     overflow: hidden;
-
-    &:hover {
-        span {
-            display: none;
-        }
-    }
+    font-family: 'Give You Glory', cursive;
+    
+}
+body:hover  span {
+        display: none;
+}
+.container {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* border: 1px solid red; */
 }
 
+.block {
+    height: 80%;
+    width: 90%;
+    border: 2px solid red;
+}
 canvas {
     cursor: crosshair;
 }
