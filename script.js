@@ -23,7 +23,9 @@ function Painting() {
     this.initialize = function () {
         canvas = document.getElementById("canvas");
         context = canvas.getContext('2d');
-        let ctx = canvas.getContext("2d");
+        // canvas = document.getElementById('overlay');
+        // let ctx = canvas.getContext('2d');
+        
 
         width = document.getElementById("canvas").clientWidth;
         height = document.getElementById("canvas").clientHeight;
@@ -50,31 +52,13 @@ function Painting() {
         //     }}, false);
         // }
 
-        canvas.addEventListener('mousemove', function (e) {
-            if (startx !== '' && starty !== '' && endx === '' && endy === '') {
-            let x = e.pageX - e.target.offsetLeft;
-            let y = e.pageY - e.target.offsetTop;
-            context.beginPath();
-            context.moveTo(startx, starty);
-            context.lineTo(e.pageX - e.target.offsetLeft, e.pageY - e.target.offsetTop);
-            context.clearRect(0,0, width, height);
-            context.stroke();
-            
-            // for (let i = 0; i < points.length; i++) {
-            //     context.beginPath();
-            //     context.moveTo(points[i][0], points[i][1]);
-            //     context.lineTo(points[i][2], points[i][3]);
-            //     context.stroke();
-            //     console.log(points);
-            // }
-            
-            }
-        }, false);
+        canvas.addEventListener('mousemove', MouseMove, false);
 
         // canvas.addEventListener('dblclick', MouseDbl, false);
         // canvas.addEventListener('contextmenu', MouseOnContextMenu , false);
         
         canvas.addEventListener('contextmenu', function (e){
+            
             e.preventDefault();
             // mouse.x = startx;
             // mouse.y = starty;
@@ -145,6 +129,28 @@ function Painting() {
                 }
             }
 
+            for (let i = 0; i < points.length; i++) {
+                context.beginPath();
+                context.moveTo(points[i][0], points[i][1]);
+                context.lineTo(points[i][2], points[i][3]);
+                context.stroke();
+                console.log(points);
+            }
+
+        }
+    }
+    
+    let MouseMove = function (e) {
+        if (startx !== '' && starty !== '' && endx === '' && endy === '') {
+            let x = e.pageX - e.target.offsetLeft;
+            let y = e.pageY - e.target.offsetTop;
+            
+            context.beginPath();
+            context.moveTo(startx, starty);
+            context.lineTo(x, y);
+            context.clearRect(0, 0, width, height);
+            context.stroke();
+
             // for (let i = 0; i < points.length; i++) {
             //     context.beginPath();
             //     context.moveTo(points[i][0], points[i][1]);
@@ -155,41 +161,7 @@ function Painting() {
 
         }
     }
-    
-    let MouseMove = function (e) {
-        if (startx !== '' && starty !== '' && endx === '' && endy === '') {
-            context.width = width;
-            context.height = height;
-            // let x = e.pageX - e.target.offsetLeft;
-            // let y = e.pageY - e.target.offsetTop;
-            mouse.x = e.pageX - e.target.offsetLeft;
-            mouse.y = e.pageY - e.target.offsetTop;
-            context.beginPath();
-            context.moveTo(startx, starty);
-            context.lineWidth = 1;
-            context.strokeStyle = "red";
-            context.fillStyle = "red";
-            context.fill();
-            context.lineTo(mouse.x, mouse.y);
-            context.clearRect(0,0,width,height)
-            context.stroke();
-        }
-    }
 }
-
-
-
-
-    // let MouseOnContextMenu = function (e) {
-    //         e.preventDefault();
-    //         startx = 0;
-    //         starty = 0;
-    //         mouse.x = '';
-    //         mouse.y = '';
-    //         context.beginPath();
-    // }
-
-
 
 function get_line_intersection(p0_x, p0_y, p1_x, p1_y, p2_x, p2_y, p3_x, p3_y)
 {
