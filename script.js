@@ -3,6 +3,8 @@ let yCollision = '';
 let points = [];
 let outx = '';
 let outy = '';
+let step = [];
+$duration = 3000; // длительность анимации
 
 function Painting() {
 
@@ -168,12 +170,29 @@ function get_line_intersection(p0_x, p0_y, p1_x, p1_y, p2_x, p2_y, p3_x, p3_y)
 }
 
 
-function animate() {
 
-    requestAnimationFrame(animate);
-    collapse();
+// function animate({  duration = 6000 }) {
 
-}
+//     let start = performance.now();
+
+//     requestAnimationFrame(function animate(time) {
+//         // timeFraction изменяется от 0 до 1
+//         let timeFraction = (time - start) / duration;
+//         if (timeFraction > 1) timeFraction = 1;
+
+//         // вычисление текущего состояния анимации
+//         // let progress = timing(timeFraction);
+
+//         // draw(progress); // отрисовать её
+//         collapse();
+
+//         if (timeFraction < 1) {
+//             requestAnimationFrame(animate);
+//         }
+
+//     });
+// }
+
 
 
 
@@ -188,16 +207,12 @@ function collapse() {
     var y = Math.cos(time * 0.9) * 96 + 128;
 
 
-    let a = '';
-    let b = '';
-    
-
         for (let i = 0; i < points.length; i++)  {
 
             // a = (points[i][0] + points[i][2]) / 2;
             // b = (points[i][1] + points[i][3]) / 2;
             console.log('==>', points[i]);
-            // drawLineTo(points[i][2], points[i][3], points[i][0], points[i][1],   outx, outy);
+            // drawLineTo(points[i][2], points[i][3], points[i][0], points[i][1], step[i]);
 
             let deltaX = Math.abs(points[i][2] - points[i][0]),
                 deltaY = Math.abs(points[i][3] - points[i][1]),
@@ -218,7 +233,7 @@ function collapse() {
                     points[i][1] += signY;
                     // points[i][3] -= signY;
                 }
-                console.log('=!=!==>', points[i][0], points[i][1], points[i][2], points[i][3], error, error2)
+                // console.log('=!=!==>', points[i][0], points[i][1], points[i][2], points[i][3], error, error2)
                 // break;
                 context.beginPath();
                 context.moveTo(points[i][0], points[i][1]);
@@ -232,12 +247,6 @@ function collapse() {
                 context.fill();
                 context.stroke();
             }
-
-
-            
-
-
-
 
             // console.log('!!!!!!!!!!!!!!', points[i][0], points[i][1], points[i][2], points[i][3]);
             // context.beginPath();
@@ -253,10 +262,10 @@ function collapse() {
             // context.stroke();
             // i++
         }  
+
+        
         points = [];
-        requestAnimationFrame(function () {
-                    collapse();
-                }, 60);
+        // requestAnimationFrame( collapse, 60);
     };
 
     
