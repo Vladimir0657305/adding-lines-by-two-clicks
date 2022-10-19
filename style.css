@@ -60,3 +60,6 @@ canvas {
     cursor: pointer;
 }
 
+#cnvs {
+    border: 1px solid #f00;
+}

@@ -184,12 +184,13 @@ let time;
 
 
 // Collapse animation =================================================================================
-function collapse() {
+function collapse(dt) {
     requestAnimationFrame( collapse);
-    var now = new Date().getTime(),
-    dt = now - (time || now);
-    console.log(time);
-    time = now;
+    // let now = new Date().getTime() * 0.002;
+    // dt = now - (time || now);
+    // time = now;
+    console.log(dt);
+    
 
     canvas = document.getElementById("canvas");
     context = canvas.getContext('2d');
