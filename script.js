@@ -4,6 +4,7 @@ let points = [];
 let outx = '';
 let outy = '';
 let step = [];
+let goal = 10000; // 10 сек
 $duration = 3000; // длительность анимации
 
 function Painting() {
@@ -50,8 +51,11 @@ function Painting() {
         else if (startx !== '' && starty !== '' && endx === '' && endy === '') {
             endx = x;
             endy = y;
-            // Save coordinates of line in to the points array
-            points.push([startx, starty, x, y]);
+            // Save coordinates of line and path length in to the points array
+            let deltax = Math.abs(startx - x);
+            let deltay = Math.abs(starty - y);
+            let temp = Math.sqrt(deltax * deltax + deltay * deltay);
+            points.push([startx, starty, x, y, temp]);
             // Clear coordinates after save
             startx = '';
             starty = '';
@@ -171,102 +175,109 @@ function get_line_intersection(p0_x, p0_y, p1_x, p1_y, p2_x, p2_y, p3_x, p3_y)
 
 
 
-// function animate({  duration = 6000 }) {
-
-//     let start = performance.now();
-
-//     requestAnimationFrame(function animate(time) {
-//         // timeFraction изменяется от 0 до 1
-//         let timeFraction = (time - start) / duration;
-//         if (timeFraction > 1) timeFraction = 1;
-
-//         // вычисление текущего состояния анимации
-//         // let progress = timing(timeFraction);
-
-//         // draw(progress); // отрисовать её
-//         collapse();
-
-//         if (timeFraction < 1) {
-//             requestAnimationFrame(animate);
-//         }
-
-//     });
-// }
 
 
+let time;
+// функция линейной интерполяции между точками p1 и p2
+// let lerp = (t, p) => [p1[0] + (p2[0] - p1[0]) * t, p1[1] + (p2[1] - p1[1]) * t]
+// let lerp = (t, p) => [p[i][0] + (p[i][2] - p[i][0]) * t, p[i][1] + (p[i][3] - p[i][1]) * t]
 
 
-let i = 0;
-// Collapse animation
+// Collapse animation =================================================================================
 function collapse() {
+    requestAnimationFrame( collapse);
+    var now = new Date().getTime(),
+    dt = now - (time || now);
+    console.log(time);
+    time = now;
+
     canvas = document.getElementById("canvas");
     context = canvas.getContext('2d');
+    console.log('time=', time)
+
+    for (let i = 0; i < points.length; i++) {
+        context.beginPath();
+        context.moveTo(points[i][0], points[i][1]);
     
-    var time = new Date().getTime() * 0.002;
-    var x = Math.sin(time) * 96 + 128;
-    var y = Math.cos(time * 0.9) * 96 + 128;
 
+    // если время конца анимации еще не настало
+    if (dt < goal) {
+        requestAnimationFrame(collapse) // запрашиваем следующий кадр
+        // growPath(t / goal * total); // рисуем ползущую линию
+        let lerp = (t, p) => [p[i][0] + (p[i][2] - p[i][0]) * t, p[i][1] + (p[i][3] - p[i][1]) * t]
+        context.lineTo(...lerp(dt / goal * points[i][4], points[i]));
+    }
+    // если анимация закончилась
+    else {
+        // рисуем замкнутую линию через все точки
+        // points.forEach((pt, i) => i && context.lineTo(pt[0], pt[1]))
+        // context.closePath();
+    }
+    }
+    context.stroke();
+    context.fillText((dt / goal).toFixed(2), 5, 10)
+}
 
-        for (let i = 0; i < points.length; i++)  {
-
-            // a = (points[i][0] + points[i][2]) / 2;
-            // b = (points[i][1] + points[i][3]) / 2;
-            console.log('==>', points[i]);
-            // drawLineTo(points[i][2], points[i][3], points[i][0], points[i][1], step[i]);
-
-            let deltaX = Math.abs(points[i][2] - points[i][0]),
-                deltaY = Math.abs(points[i][3] - points[i][1]),
-                signX = points[i][0] < points[i][2] ? 1 : -1,
-                signY = points[i][1] < points[i][3] ? 1 : -1,
-                error = deltaX - deltaY;
-            // while (points[i][0] != points[i][2] || points[i][1] != points[i][3]) {
-            while (points[i][0] != points[i][2] || points[i][1] != points[i][3]) {
-                // console.log('points[i][0], points[i][1], points[i][2], points[i][3]', points[i][0], points[i][1], points[i][2], points[i][3]);
-                let error2 = error * 2;
-                if (error2 > -deltaY) {
-                    error -= deltaY;
-                    points[i][0] += signX;
-                    // points[i][2] -= signX;
-                }
-                if (error2 < deltaX) {
-                    error += deltaX;
-                    points[i][1] += signY;
-                    // points[i][3] -= signY;
-                }
-                // console.log('=!=!==>', points[i][0], points[i][1], points[i][2], points[i][3], error, error2)
-                // break;
-                context.beginPath();
-                context.moveTo(points[i][0], points[i][1]);
-                context.lineWidth = 3;
-                context.lineTo(points[i][2], points[i][3]);
-                context.moveTo(points[i][2], points[i][3]);
-                context.lineWidth = 3;
-                context.lineTo(points[i][0], points[i][1]);
-                context.strokeStyle = "#ffffff";
-                context.fillStyle = "#ffffff";
-                context.fill();
-                context.stroke();
-            }
-
-            // console.log('!!!!!!!!!!!!!!', points[i][0], points[i][1], points[i][2], points[i][3]);
-            // context.beginPath();
-            // context.moveTo(points[i][0], points[i][1]);
-            // context.lineWidth = 3;
-            // context.lineTo(a, b);
-            // context.moveTo(points[i][2], points[i][3]);
-            // context.lineWidth = 3;
-            // context.lineTo(a, b);
-            // context.strokeStyle = "#ffffff";
-            // context.fillStyle = "#ffffff";
-            // context.fill();
-            // context.stroke();
-            // i++
-        }  
+// function growPath(t) {
+//     // длина пути между уже пройденными точками
+//     let pathLen = 0;
+//     for (let i = 1; i <= points.length; i++) {
+//         let pt = points[i] || points[0];
+//         // если точка уже пройдена
+//         // if (t - pathLen > pt[2]) {
+//         //     pathLen += pt[2]; // считаем пройденный путь
+//         //     ctx.lineTo(pt[0], pt[1]); // рисуем полную линию
+//         // }
+//         // // если точка еще не достигнута 
+//         // else {
+//             // считаем конечную точку и выходим из цикла
+//             return ctx.lineTo(...lerp((t - pathLen) / pt[2], points[i - 1], pt));
+//         // }
+//     }
+// }
 
         
-        points = [];
-        // requestAnimationFrame( collapse, 60);
-    };
+
+// for (let i = 0; i < points.length; i++)  {
+
+//             // a = (points[i][0] + points[i][2]) / 2;
+//             // b = (points[i][1] + points[i][3]) / 2;
+//             console.log('==>', points[i]);
+//             // drawLineTo(points[i][2], points[i][3], points[i][0], points[i][1], step[i]);
+
+//                 // console.log('=!=!==>', points[i][0], points[i][1], points[i][2], points[i][3], error, error2)
+//                 // break;
+//                 context.beginPath();
+//                 context.moveTo(points[i][0], points[i][1]);
+//                 context.lineWidth = 3;
+//                 context.lineTo(points[i][2], points[i][3]);
+//                 context.moveTo(points[i][2], points[i][3]);
+//                 context.lineWidth = 3;
+//                 context.lineTo(points[i][0], points[i][1]);
+//                 context.strokeStyle = "#ffffff";
+//                 context.fillStyle = "#ffffff";
+//                 context.fill();
+//                 context.stroke();
+            
+
+
+//             // console.log('!!!!!!!!!!!!!!', points[i][0], points[i][1], points[i][2], points[i][3]);
+//             // context.beginPath();
+//             // context.moveTo(points[i][0], points[i][1]);
+//             // context.lineWidth = 3;
+//             // context.lineTo(a, b);
+//             // context.moveTo(points[i][2], points[i][3]);
+//             // context.lineWidth = 3;
+//             // context.lineTo(a, b);
+//             // context.strokeStyle = "#ffffff";
+//             // context.fillStyle = "#ffffff";
+//             // context.fill();
+//             // context.stroke();
+//             // i++
+//         }  
+//         // points = [];
+//         // requestAnimationFrame( collapse, 60);
+//     };
 
     
     
@@ -278,47 +289,6 @@ function collapse() {
 
 document.querySelector('.coor').onclick = collapse;
 
-
-
-
-
-// function drawLineTo(x1, y1, x2, y2, step) {
-//     let deltaX = Math.abs(x2 - x1),
-//         deltaY = Math.abs(y2 - y1),
-//         signX = x1 < x2 ? 1 : -1,
-//         signY = y1 < y2 ? 1 : -1,
-//         error = deltaX - deltaY;
-//     while (x1 != x2 || y1 != y2) {
-//         outx = x1;
-//         outy = y1;
-//         console.log(x1, y1, x2, y2);
-//         let error2 = error * 2;
-//         if (error2 > -deltaY) {
-//             error -= deltaY;
-//             x1 += signX;
-//         }
-//         if (error2 < deltaX) {
-//             error += deltaX;
-//             y1 += signY;
-//         }
-//     }
-//     return (x1, y1, x2, y2);
-// }
-
-
-
-
-// function step(p0_x, p0_y, p1_x, p1_y, stepx, stepy) {
-    // var x = 50, y = 50, x2 = 20, y2 = -10;
-    // let time = Math.max(Math.abs(p0_x - p1_x), Math.abs(p0_y - p1_y));
-    // for (var i = 0; i <= time; i++) {
-    //     let delta = i / time;
-    //     let stepx = delta * (p1_x - p0_x) + p0_x;
-    //     let stepy = delta * (p1_y - p0_y) + p0_y;
-        // console.log(stepx,stepy)
-//         document.write([Math.round(stepx), Math.round(stepy)] + "<br>")
-//     }
-// };
 
 
 
