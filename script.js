@@ -4,7 +4,6 @@ let points = [];
 let outx = '';
 let outy = '';
 let step = [];
-let goal = 10000; // 10 сек
 $duration = 3000; // длительность анимации
 
 function Painting() {
@@ -29,11 +28,10 @@ function Painting() {
 
         canvas.width = width;
         canvas.height = height;
-    
+
         canvas.addEventListener('click', MouseDown, false);
-        canvas.addEventListener('mousemove', MouseMove, false);        
+        canvas.addEventListener('mousemove', MouseMove, false);
         canvas.addEventListener('contextmenu', MouseContext, false);
-        // animate();
     }
 
     let MouseDown = function (e) {
@@ -51,11 +49,8 @@ function Painting() {
         else if (startx !== '' && starty !== '' && endx === '' && endy === '') {
             endx = x;
             endy = y;
-            // Save coordinates of line and path length in to the points array
-            let deltax = Math.abs(startx - x);
-            let deltay = Math.abs(starty - y);
-            let temp = Math.sqrt(deltax * deltax + deltay * deltay);
-            points.push([startx, starty, x, y, temp]);
+            // Save coordinates of line in to the points array
+            points.push([startx, starty, x, y]);
             // Clear coordinates after save
             startx = '';
             starty = '';
@@ -78,21 +73,21 @@ function Painting() {
             }
         }
     }
-    
+
     let MouseMove = function (e) {
         if (startx !== '' && starty !== '' && endx === '' && endy === '') {
             let x = e.pageX - e.target.offsetLeft;
             let y = e.pageY - e.target.offsetTop;
-            
+
             // Drawing line
             context.beginPath();
             context.moveTo(startx, starty);
             context.lineTo(x, y);
             context.clearRect(0, 0, width, height);
             context.stroke();
-            
+
             // Check intersection with existing lines
-            for (let i = 0; i< points.length; i++) {
+            for (let i = 0; i < points.length; i++) {
                 get_line_intersection(startx, starty, x, y, ...points[i]);
                 context.beginPath();
                 context.moveTo(xCollision, yCollision);
@@ -135,17 +130,8 @@ function Painting() {
 }
 
 
-let MouseContext = function(e) {
+let MouseContext = function (e) {
     e.preventDefault();
-    // Drawing line
-    // context.beginPath();
-    // context.moveTo(startx, starty);
-    // context.lineTo(startx, starty);
-    
-    // context.stroke();
-
-    
-    
     startx = '';
     starty = '';
     mouse.x = '';
@@ -155,8 +141,7 @@ let MouseContext = function(e) {
 
 
 // Function to get the dots of lines intersctions
-function get_line_intersection(p0_x, p0_y, p1_x, p1_y, p2_x, p2_y, p3_x, p3_y)
-{
+function get_line_intersection(p0_x, p0_y, p1_x, p1_y, p2_x, p2_y, p3_x, p3_y) {
     let s1_x, s1_y, s2_x, s2_y;
     s1_x = p1_x - p0_x; s1_y = p1_y - p0_y;
     s2_x = p3_x - p2_x; s2_y = p3_y - p2_y;
@@ -173,126 +158,51 @@ function get_line_intersection(p0_x, p0_y, p1_x, p1_y, p2_x, p2_y, p3_x, p3_y)
     return 0; // No collision
 }
 
-
-
-
-
-let time;
-// функция линейной интерполяции между точками p1 и p2
-// let lerp = (t, p) => [p1[0] + (p2[0] - p1[0]) * t, p1[1] + (p2[1] - p1[1]) * t]
-// let lerp = (t, p) => [p[i][0] + (p[i][2] - p[i][0]) * t, p[i][1] + (p[i][3] - p[i][1]) * t]
-
-
-// Collapse animation =================================================================================
-function collapse(dt) {
-    requestAnimationFrame( collapse);
-    // let now = new Date().getTime() * 0.002;
-    // dt = now - (time || now);
-    // time = now;
-    console.log(dt);
-    
-
+// Collapse animation
+function collapse() {
     canvas = document.getElementById("canvas");
     context = canvas.getContext('2d');
-    console.log('time=', time)
 
+    var time = new Date().getTime() * 0.002;
+    var x = Math.sin(time) * 96 + 128;
+    var y = Math.cos(time * 0.9) * 96 + 128;
     for (let i = 0; i < points.length; i++) {
-        context.beginPath();
-        context.moveTo(points[i][0], points[i][1]);
-    
+        // a = (points[i][0] + points[i][2]) / 2;
+        // b = (points[i][1] + points[i][3]) / 2;
+        console.log('==>', points[i]);
 
-    // если время конца анимации еще не настало
-    if (dt < goal) {
-        requestAnimationFrame(collapse) // запрашиваем следующий кадр
-        // growPath(t / goal * total); // рисуем ползущую линию
-        let lerp = (t, p) => [p[i][0] + (p[i][2] - p[i][0]) * t, p[i][1] + (p[i][3] - p[i][1]) * t]
-        context.lineTo(...lerp(dt / goal * points[i][4], points[i]));
+        let deltaX = Math.abs(points[i][2] - points[i][0]),
+            deltaY = Math.abs(points[i][3] - points[i][1]),
+            signX = points[i][0] < points[i][2] ? 1 : -1,
+            signY = points[i][1] < points[i][3] ? 1 : -1,
+            error = deltaX - deltaY;
+        while (points[i][0] != points[i][2] || points[i][1] != points[i][3]) {
+            let error2 = error * 2;
+            if (error2 > -deltaY) {
+                error -= deltaY;
+                points[i][0] += signX;
+            }
+            if (error2 < deltaX) {
+                error += deltaX;
+                points[i][1] += signY;
+            }
+            context.beginPath();
+            context.moveTo(points[i][0], points[i][1]);
+            context.lineWidth = 3;
+            context.lineTo(points[i][2], points[i][3]);
+            context.moveTo(points[i][2], points[i][3]);
+            context.lineWidth = 3;
+            context.lineTo(points[i][0], points[i][1]);
+            context.strokeStyle = "#ffffff";
+            context.fillStyle = "#ffffff";
+            context.fill();
+            context.stroke();
+        }
     }
-    // если анимация закончилась
-    else {
-        // рисуем замкнутую линию через все точки
-        // points.forEach((pt, i) => i && context.lineTo(pt[0], pt[1]))
-        // context.closePath();
-    }
-    }
-    context.stroke();
-    context.fillText((dt / goal).toFixed(2), 5, 10)
-}
-
-// function growPath(t) {
-//     // длина пути между уже пройденными точками
-//     let pathLen = 0;
-//     for (let i = 1; i <= points.length; i++) {
-//         let pt = points[i] || points[0];
-//         // если точка уже пройдена
-//         // if (t - pathLen > pt[2]) {
-//         //     pathLen += pt[2]; // считаем пройденный путь
-//         //     ctx.lineTo(pt[0], pt[1]); // рисуем полную линию
-//         // }
-//         // // если точка еще не достигнута 
-//         // else {
-//             // считаем конечную точку и выходим из цикла
-//             return ctx.lineTo(...lerp((t - pathLen) / pt[2], points[i - 1], pt));
-//         // }
-//     }
-// }
-
-        
-
-// for (let i = 0; i < points.length; i++)  {
-
-//             // a = (points[i][0] + points[i][2]) / 2;
-//             // b = (points[i][1] + points[i][3]) / 2;
-//             console.log('==>', points[i]);
-//             // drawLineTo(points[i][2], points[i][3], points[i][0], points[i][1], step[i]);
-
-//                 // console.log('=!=!==>', points[i][0], points[i][1], points[i][2], points[i][3], error, error2)
-//                 // break;
-//                 context.beginPath();
-//                 context.moveTo(points[i][0], points[i][1]);
-//                 context.lineWidth = 3;
-//                 context.lineTo(points[i][2], points[i][3]);
-//                 context.moveTo(points[i][2], points[i][3]);
-//                 context.lineWidth = 3;
-//                 context.lineTo(points[i][0], points[i][1]);
-//                 context.strokeStyle = "#ffffff";
-//                 context.fillStyle = "#ffffff";
-//                 context.fill();
-//                 context.stroke();
-            
-
-
-//             // console.log('!!!!!!!!!!!!!!', points[i][0], points[i][1], points[i][2], points[i][3]);
-//             // context.beginPath();
-//             // context.moveTo(points[i][0], points[i][1]);
-//             // context.lineWidth = 3;
-//             // context.lineTo(a, b);
-//             // context.moveTo(points[i][2], points[i][3]);
-//             // context.lineWidth = 3;
-//             // context.lineTo(a, b);
-//             // context.strokeStyle = "#ffffff";
-//             // context.fillStyle = "#ffffff";
-//             // context.fill();
-//             // context.stroke();
-//             // i++
-//         }  
-//         // points = [];
-//         // requestAnimationFrame( collapse, 60);
-//     };
-
-    
-    
-    
-    
-
-    
-    
+    points = [];
+};
 
 document.querySelector('.coor').onclick = collapse;
-
-
-
-
 
 let app = new Painting();
 app.initialize();
