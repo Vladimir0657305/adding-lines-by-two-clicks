@@ -1,8 +1,5 @@
-
-
-let countStep = 11;
-$duration = 200000; // длительность анимации
-
+// let countStep = 11;
+$duration = 200000; // animation duration
 
 function Painting() {
 let xCollision = '';
@@ -74,7 +71,7 @@ let outx = '';
                     get_line_intersection(...points[i], ...points[k]);
                     context.beginPath();
                     context.moveTo(xCollision, yCollision);
-                    context.arc(xCollision, yCollision, 4, 0, 2 * Math.PI);
+                    context.arc(xCollision, yCollision, 3, 0, 2 * Math.PI);
                     context.lineWidth = 1;
                     context.lineTo(xCollision, yCollision);
                     // context.strokeStyle = "red";
@@ -103,7 +100,7 @@ let outx = '';
                 get_line_intersection(startx, starty, x, y, ...points[i]);
                 context.beginPath();
                 context.moveTo(xCollision, yCollision);
-                context.arc(xCollision, yCollision, 4, 0, 2 * Math.PI);
+                context.arc(xCollision, yCollision, 3, 0, 2 * Math.PI);
                 context.lineWidth = 1;
                 context.lineTo(xCollision, yCollision);
                 context.strokeStyle = "red";
@@ -148,92 +145,89 @@ let MouseContext = function (e) {
         }
     };
 
-function redrawDots() {
-    for (let i = 0; i < points.length; i++) {
-        for (let k = i; k < points.length; k++) {
-            get_line_intersection(...points[i], ...points[k]);
+    function redrawDots() {
+        for (let i = 0; i < points.length; i++) {
+            for (let k = i; k < points.length; k++) {
+                get_line_intersection(...points[i], ...points[k]);
+                context.beginPath();
+                context.moveTo(xCollision, yCollision);
+                context.arc(xCollision, yCollision, 3, 0, 2 * Math.PI);
+                context.lineWidth = 1;
+                context.lineTo(xCollision, yCollision);
+                context.strokeStyle = "red";
+                context.fillStyle = "red";
+                context.fill();
+                context.stroke();
+            }
+        }
+    };
+
+    // Function to get the dots of lines intersctions
+    function get_line_intersection(p0_x, p0_y, p1_x, p1_y, p2_x, p2_y, p3_x, p3_y) {
+        let s1_x, s1_y, s2_x, s2_y;
+        s1_x = p1_x - p0_x; s1_y = p1_y - p0_y;
+        s2_x = p3_x - p2_x; s2_y = p3_y - p2_y;
+
+        let s, t;
+        s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y);
+        t = (s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y);
+
+        if (s >= 0 && s <= 1 && t >= 0 && t <= 1) {
+            // Collision detected
+            xCollision = Math.round(p0_x + (t * s1_x));
+            yCollision = Math.round(p0_y + (t * s1_y));
+        }
+            return 0; // No collision
+    }
+
+    // Collapse animation
+    function collapse() {
+        canvas = document.getElementById("canvas");
+        context = canvas.getContext('2d');
+        // let x2 = '';
+        function draw() {
+        for (let i = 0; i < points.length; i++) { // перебираем все прямые
+            let x1 = ((points[i][0] + pointsCoef[i][2] * points[i][2]) / (1 + pointsCoef[i][2])); // пересчитываем новые уменьшенные координаты соотв точки
+            let y1 = ((points[i][1] + pointsCoef[i][2] * points[i][3]) / (1 + pointsCoef[i][2])); // пересчитываем новые уменьшенные координаты соотв точки
+            x2 = ((points[i][2] + pointsCoef[i][2] * points[i][0]) / (1 + pointsCoef[i][2]));  // пересчитываем новые уменьшенные координаты соотв точки
+            let y2 = ((points[i][3] + pointsCoef[i][2] * points[i][1]) / (1 + pointsCoef[i][2])); //  пересчитываем новые уменьшенные координаты соотв точки
             context.beginPath();
-            context.moveTo(xCollision, yCollision);
-            context.arc(xCollision, yCollision, 4, 0, 2 * Math.PI);
-            context.lineWidth = 1;
-            context.lineTo(xCollision, yCollision);
-            context.strokeStyle = "red";
-            context.fillStyle = "red";
+            context.moveTo(points[i][0], points[i][1]); // устанавливаем перо в начало по старым координатам с одной стороны прямой
+            context.lineWidth = 3; // толщина линии
+            context.arc(points[i][0], points[i][1], 3, 0, 2 * Math.PI); // рисуем круг с центом в новых уменьшенных координатах
+            context.moveTo(points[i][2], points[i][3]); // устанавливаем перо в начало по старым координатам с другой стороны прямой
+            context.lineWidth = 4;
+            context.arc(points[i][2], points[i][3], 3, 0, 2 * Math.PI); // рисуем круг с центом в новых уменьшенных координатах
+            context.strokeStyle = "#ffffff";
+            context.fillStyle = "#ffffff";
             context.fill();
             context.stroke();
+
+            // меняем координаты на вновь вычисленные - уменьшенные
+            points[i][0] = x1; 
+            points[i][1] = y1;
+            points[i][2] = x2;
+            points[i][3] = y2;
+            outx++;
+            pointsCoef[i][2] = (((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)) ** .5 + outx*18) / $duration;
         }
-    }
-};
 
-// Function to get the dots of lines intersctions
-function get_line_intersection(p0_x, p0_y, p1_x, p1_y, p2_x, p2_y, p3_x, p3_y) {
-    let s1_x, s1_y, s2_x, s2_y;
-    s1_x = p1_x - p0_x; s1_y = p1_y - p0_y;
-    s2_x = p3_x - p2_x; s2_y = p3_y - p2_y;
+        if ((points[0][2]  - pointsCoef[0][0])-1 <= 0 && (points[0][3]  - pointsCoef[0][1])-1 <= 0) {
+            context.beginPath();
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            clearInterval(timerId);
+            xCollision = '';
+            yCollision = '';
+            points = [];
+            pointsCoef = [];
+            outx = '';
 
-    let s, t;
-    s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y);
-    t = (s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y);
-
-    if (s >= 0 && s <= 1 && t >= 0 && t <= 1) {
-        // Collision detected
-        xCollision = Math.round(p0_x + (t * s1_x));
-        yCollision = Math.round(p0_y + (t * s1_y));
-    }
-        return 0; // No collision
-    }
-
-// Collapse animation
-function collapse() {
-    canvas = document.getElementById("canvas");
-    context = canvas.getContext('2d');
-    // let x2 = '';
-    function draw() {
-    for (let i = 0; i < points.length; i++) { // перебираем все прямые
-        let x1 = ((points[i][0] + pointsCoef[i][2] * points[i][2]) / (1 + pointsCoef[i][2])); // пересчитываем новые уменьшенные координаты соотв точки
-        let y1 = ((points[i][1] + pointsCoef[i][2] * points[i][3]) / (1 + pointsCoef[i][2])); // пересчитываем новые уменьшенные координаты соотв точки
-        x2 = ((points[i][2] + pointsCoef[i][2] * points[i][0]) / (1 + pointsCoef[i][2]));  // пересчитываем новые уменьшенные координаты соотв точки
-        let y2 = ((points[i][3] + pointsCoef[i][2] * points[i][1]) / (1 + pointsCoef[i][2])); //  пересчитываем новые уменьшенные координаты соотв точки
-        context.beginPath();
-        context.moveTo(points[i][0], points[i][1]); // устанавливаем перо в начало по старым координатам с одной стороны прямой
-        context.lineWidth = 3; // толщина линии
-        context.arc(points[i][0], points[i][1], 2, 0, 2 * Math.PI); // рисуем круг с центом в новых уменьшенных координатах
-        context.moveTo(points[i][2], points[i][3]); // устанавливаем перо в начало по старым координатам с другой стороны прямой
-        context.lineWidth = 4;
-        context.arc(points[i][2], points[i][3], 2, 0, 2 * Math.PI); // рисуем круг с центом в новых уменьшенных координатах
-        context.strokeStyle = "#ffffff";
-        context.fillStyle = "#ffffff";
-        context.fill();
-        context.stroke();
-
-        // меняем координаты на вновь вычисленные - уменьшенные
-        points[i][0] = x1; 
-        points[i][1] = y1;
-        points[i][2] = x2;
-        points[i][3] = y2;
-        outx++;
-        pointsCoef[i][2] = (((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)) ** .5 + outx*18) / $duration;
-    }
-    
-    if ((points[0][2]  - pointsCoef[0][0])-1 <= 0 && (points[0][3]  - pointsCoef[0][1])-1 <= 0) {
-        context.beginPath();
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        clearInterval(timerId);
-        xCollision = '';
-        yCollision = '';
-        points = [];
-        pointsCoef = [];
-        outx = '';
-        
-        return;
+            return;
+            }
         }
-    }
-    let timerId = setInterval(draw, 20);
-};
+        let timerId = setInterval(draw, 20);
+    };
 }
-
-
-// document.querySelector('.coor').onclick = collapse;
 
 let app = new Painting();
 app.initialize();
