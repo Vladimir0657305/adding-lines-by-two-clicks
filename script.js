@@ -186,24 +186,24 @@ let MouseContext = function (e) {
         context = canvas.getContext('2d');
         // let x2 = '';
         function draw() {
-        for (let i = 0; i < points.length; i++) { // перебираем все прямые
-            let x1 = ((points[i][0] + pointsCoef[i][2] * points[i][2]) / (1 + pointsCoef[i][2])); // пересчитываем новые уменьшенные координаты соотв точки
-            let y1 = ((points[i][1] + pointsCoef[i][2] * points[i][3]) / (1 + pointsCoef[i][2])); // пересчитываем новые уменьшенные координаты соотв точки
-            x2 = ((points[i][2] + pointsCoef[i][2] * points[i][0]) / (1 + pointsCoef[i][2]));  // пересчитываем новые уменьшенные координаты соотв точки
-            let y2 = ((points[i][3] + pointsCoef[i][2] * points[i][1]) / (1 + pointsCoef[i][2])); //  пересчитываем новые уменьшенные координаты соотв точки
+            for (let i = 0; i < points.length; i++) { // iterate over all lines
+                let x1 = ((points[i][0] + pointsCoef[i][2] * points[i][2]) / (1 + pointsCoef[i][2])); // recalculate the new reduced coordinates corresponding to the point
+                let y1 = ((points[i][1] + pointsCoef[i][2] * points[i][3]) / (1 + pointsCoef[i][2])); // recalculate the new reduced coordinates corresponding to the point
+                x2 = ((points[i][2] + pointsCoef[i][2] * points[i][0]) / (1 + pointsCoef[i][2]));  // recalculate the new reduced coordinates corresponding to the point
+                let y2 = ((points[i][3] + pointsCoef[i][2] * points[i][1]) / (1 + pointsCoef[i][2])); //  recalculate the new reduced coordinates corresponding to the point
             context.beginPath();
-            context.moveTo(points[i][0], points[i][1]); // устанавливаем перо в начало по старым координатам с одной стороны прямой
-            context.lineWidth = 3; // толщина линии
-            context.arc(points[i][0], points[i][1], 3, 0, 2 * Math.PI); // рисуем круг с центом в новых уменьшенных координатах
-            context.moveTo(points[i][2], points[i][3]); // устанавливаем перо в начало по старым координатам с другой стороны прямой
+                context.moveTo(points[i][0], points[i][1]); // set the pen to the beginning according to the old coordinates on one side of the straight line
+                context.lineWidth = 3; // line thickness
+                context.arc(points[i][0], points[i][1], 3, 0, 2 * Math.PI); // draw a circle centered at the new reduced coordinates
+                context.moveTo(points[i][2], points[i][3]); // set the pen to the beginning according to the old coordinates on the other side of the straight line
             context.lineWidth = 4;
-            context.arc(points[i][2], points[i][3], 3, 0, 2 * Math.PI); // рисуем круг с центом в новых уменьшенных координатах
+                context.arc(points[i][2], points[i][3], 3, 0, 2 * Math.PI); // draw a circle centered at the new reduced coordinates
             context.strokeStyle = "#ffffff";
             context.fillStyle = "#ffffff";
             context.fill();
             context.stroke();
 
-            // меняем координаты на вновь вычисленные - уменьшенные
+            // change the coordinates to the newly calculated - reduced
             points[i][0] = x1; 
             points[i][1] = y1;
             points[i][2] = x2;
