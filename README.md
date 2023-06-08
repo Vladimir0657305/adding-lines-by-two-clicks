@@ -7,3 +7,7 @@ https://addline.netlify.app
 
 ![](https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=Vladimir0657305&theme=solarized_dark)
 
+![](https://github-profile-summary-cards.vercel.app/api/cards/most-commit-language?username=Vladimir0657305&theme=solarized_dark)
+![](https://github-profile-summary-cards.vercel.app/api/cards/stats?username=Vladimir0657305&theme=solarized_dark)
+
+![](https://komarev.com/ghpvc/?username=Vladimir0657305)
